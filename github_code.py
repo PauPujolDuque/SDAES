@@ -9,15 +9,15 @@ import io
 import os
 
 # Configuración FTP
-ftp_host = os.getenv("ftp_host")
-ftp_user = os.getenv("ftp_user")
-ftp_pass = os.getenv("ftp_pass")
+ftp_host = st.secrets["ftp_host"]
+ftp_user = st.secrets["ftp_user"]
+ftp_pass = st.secrets["ftp_pass"]
 ftp_filepath = "meteo_data.dat"
 local_filepath = "meteo_data.dat"
 
 # Conectar al servidor FTP
-ftp = FTP(os.getenv("ftp_host"))
-ftp.login(os.getenv("ftp_user"), os.getenv("ftp_pass"))
+ftp = FTP(ftp_host)
+ftp.login(ftp_user, ftp_pass)
 
 # Descargar archivo DAT
 with open(local_filepath, "wb") as file:
