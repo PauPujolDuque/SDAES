@@ -12,8 +12,8 @@ ftp_filepath = "meteo_data.dat"
 local_filepath = "meteo_data.dat"
 
 # Conectar al servidor FTP
-ftp = FTP(st.secrets["ftp_host"])
-ftp.login(st.secrets["ftp_user"], st.secrets["ftp_pass"])
+ftp = FTP(st.secrets.ftp_host)
+ftp.login(st.secrets.ftp_user, st.secrets.ftp_pass)
 
 # Descargar archivo DAT
 with open(local_filepath, "wb") as file:
