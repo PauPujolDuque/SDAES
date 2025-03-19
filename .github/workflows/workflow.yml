@@ -1,0 +1,36 @@
+name: Ejecutar script de Python
+
+# Definir cuándo se activará el flujo de trabajo
+on:
+  push:          # Cuando hagas un push al repositorio
+    branches:
+      - main     # En la rama principal
+
+jobs:
+  ejecutar-script:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Paso 1: Checkout del código del repositorio
+      - name: Checkout del repositorio
+        uses: actions/checkout@v3
+
+      # Paso 2: Configurar Python
+      - name: Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      # Paso 3: Instalar dependencias (si tienes un archivo requirements.txt)
+      - name: Instalar dependencias
+        run: |
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      # Paso 4: Ejecutar el script con los secretos
+      - name: Ejecutar el script
+        env:
+          ftp_host: ${{ secrets.ftp_host }}
+          ftp_user: ${{ secrets.ftp_user }}
+          ftp_pass: ${{ secrets.ftp_pass }}
+        run: |
+          github_cose.py
