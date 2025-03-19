@@ -6,7 +6,6 @@ import plotly.graph_objects as go
 import plotly.express as px
 from plotly.subplots import make_subplots
 import io
-import os
 
 # Configuración FTP
 ftp_host = st.secrets["ftp_host"]
