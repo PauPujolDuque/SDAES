@@ -6,16 +6,14 @@ import plotly.graph_objects as go
 import plotly.express as px
 from plotly.subplots import make_subplots
 import io
+
 # Configuración FTP
-ftp_host = st.secrets["ftp_host"]
-ftp_user = st.secrets["ftp_user"]
-ftp_pass = st.secrets["ftp_pass"]
 ftp_filepath = "meteo_data.dat"
 local_filepath = "meteo_data.dat"
 
 # Conectar al servidor FTP
-ftp = FTP(ftp_host)
-ftp.login(ftp_user, ftp_pass)
+ftp = FTP(st.secrets["ftp_host"])
+ftp.login(st.secrets["ftp_user"], st.secrets["ftp_pass"])
 
 # Descargar archivo DAT
 with open(local_filepath, "wb") as file:
