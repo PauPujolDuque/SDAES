@@ -33,4 +33,4 @@ jobs:
           ftp_user: ${{ secrets.ftp_user }}
           ftp_pass: ${{ secrets.ftp_pass }}
         run: |
-          github_code.py
+          python github_code.py
