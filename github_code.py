@@ -9,7 +9,7 @@ import io
 
 # Configuración FTP
 ftp_filepath = "meteo_data.dat"
-local_filepath = "meteo_data.dat"
+local_filepath = "/tmp/meteo_data.dat"
 
 # Conectar al servidor FTP
 ftp = FTP(st.secrets["ftp_host"])
