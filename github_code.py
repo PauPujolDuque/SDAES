@@ -21,7 +21,10 @@ with open(local_filepath, "wb") as file:
 ftp.quit()
 
 # Leer archivo sin asumir encabezado y omitir posibles metadatos
-data = pd.read_csv(local_filepath, header=None, skiprows=4)
+try:
+    data = pd.read_csv(local_filepath, header=None, skiprows=4)
+except Exception as e:
+    st.error(f"Error reading file: {e}")
 
 # Asignar nombres de columnas
 data.columns = ["timestamp", "record", "batt_v", "Temperature", "%RH", "Wind Speed", "Wind Direction", 
