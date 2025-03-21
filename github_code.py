@@ -22,7 +22,7 @@ ftp.quit()
 
 # Leer archivo sin asumir encabezado y omitir posibles metadatos
 try:
-    data = pd.read_csv(local_filepath, header=None, skiprows=4)
+    data = pd.read_csv(local_filepath, header=4)
 except Exception as e:
     st.error(f"Error reading file: {e}")
 
