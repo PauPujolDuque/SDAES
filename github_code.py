@@ -22,13 +22,12 @@ ftp.quit()
 
 # Leer archivo sin asumir encabezado y omitir posibles metadatos
 try:
-    data = pd.read_csv(local_filepath)
+    data = pd.read_csv(local_filepath, header=None, skiprows=4)
 except Exception as e:
     st.error(f"Error reading file: {e}")
 
 # Asignar nombres de columnas
-data.columns = ["timestamp", "record", "batt_v", "Temperature", "%RH", "Wind Speed", "Wind Direction", 
-                "Peri", "Pira_tracker", "GH", "Pressure", "baro_temp", "PPFD"]  
+data.columns = ["timestamp", "record", "batt_v", "Temperature", "%RH", "Wind Speed", "Wind Direction", "Peri", "Pira_tracker", "GH", "Pressure", "baro_temp", "PPFD"]  
 
 # Eliminar filas no numéricas en timestamp
 data = data[data["timestamp"].str.match(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}", na=False)]
@@ -37,13 +36,11 @@ data = data[data["timestamp"].str.match(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}", 
 data["timestamp"] = pd.to_datetime(data["timestamp"], errors='coerce')
 
 # Convertir columnas numéricas
-cols_numeric = ["Temperature", "%RH", "Wind Speed", "Wind Direction", 
-                "Peri", "Pira_tracker", "GH", "Pressure", "baro_temp", "PPFD"]
+cols_numeric = ["Temperature", "%RH", "Wind Speed", "Wind Direction", "Peri", "Pira_tracker", "GH", "Pressure", "baro_temp", "PPFD"]
 data[cols_numeric] = data[cols_numeric].apply(pd.to_numeric, errors="coerce")
 
 # Eliminar filas con valores nulos en las columnas clave
-data = data.dropna(subset=["timestamp", "record", "batt_v", "Temperature", "%RH", "Wind Speed", "Wind Direction", 
-                "Peri", "Pira_tracker", "GH", "Pressure", "baro_temp", "PPFD"])
+data = data.dropna(subset=["timestamp", "record", "batt_v", "Temperature", "%RH", "Wind Speed", "Wind Direction", "Peri", "Pira_tracker", "GH", "Pressure", "baro_temp", "PPFD"])
 
 # Establecer índice de tiempo
 data.set_index("timestamp", inplace=True)
