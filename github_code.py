@@ -8,8 +8,8 @@ from plotly.subplots import make_subplots
 import io
 
 # Configuración FTP
-ftp_filepath = "meteo_data.dat"
-local_filepath = "/tmp/meteo_data.dat"
+ftp_filepath = "meteos_data.dat"
+local_filepath = "/tmp/meteos_data.dat"
 
 # Conectar al servidor FTP
 ftp = FTP(st.secrets["ftp_host"])
