@@ -202,6 +202,7 @@ with sun1:
     st.subheader("Suntracked Solar Radiation")
     if not data_filtered.empty:
         st.plotly_chart(fig4)
+        st.text("Since 30/04, data shown in Pira plot is GHI data and it is not suntracked.")
     else:
         st.warning("No data available for date & time selected.")
 with sun2:
