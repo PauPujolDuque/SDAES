@@ -150,7 +150,7 @@ fig2.add_trace(
 
 # Set x-axis title
 fig2.update_xaxes(title_text="Date & Time")
-fig2.update_yaxes(title_text="Wind Speed (m/s)", showgrid=False)
+fig2.update_yaxes(title_text="Wind Speed (m s-1)", showgrid=False)
 
 # Contar la frecuencia de cada dirección única
 direction_counts = data_filtered['Wind Direction'].round().value_counts().reset_index()
@@ -187,14 +187,14 @@ fig4 = make_subplots(specs=[[{"secondary_y": True}]])
 fig4.add_trace(go.Scatter(x=data_filtered.index, y=data_filtered["Peri"], name="Peri", line=dict(color="#d62728")))
 fig4.add_trace(go.Scatter(x=data_filtered.index, y=data_filtered["Pira_tracker"], name="Pira", line=dict(color="#e377c2")))
 fig4.update_xaxes(title_text="Date & Time")
-fig4.update_yaxes(title_text="Peri & Pira", showgrid=False)
+fig4.update_yaxes(title_text="Peri & Pira (W m-2)", showgrid=False)
 
 fig5 = make_subplots(specs=[[{"secondary_y": True}]]) 
 fig5.add_trace(go.Scatter(x=data_filtered.index, y=data_filtered["GH"], name="GH", line=dict(color="#2ca02c")), secondary_y=False)
 fig5.add_trace(go.Scatter(x=data_filtered.index, y=data_filtered["PPFD"], name="PPFD", line=dict(color="#bcbd22")), secondary_y=True)
 fig5.update_xaxes(title_text="Date & Time")
-fig5.update_yaxes(title_text="GH", showgrid=False, secondary_y=False)
-fig5.update_yaxes(title_text="PPFD", showgrid=False, secondary_y=True)
+fig5.update_yaxes(title_text="GH (W m-2)", range=[0,1500], showgrid=False, secondary_y=False)
+fig5.update_yaxes(title_text="PPFD (μm m-2 s-1)", range=[0,4000], showgrid=False, secondary_y=True)
 
 sun1, sun2 = st.columns(2, border=True)
 
