@@ -39,8 +39,11 @@ data["timestamp"] = pd.to_datetime(data["timestamp"], errors='coerce')
 cols_numeric = ["Temperature", "%RH", "Wind Speed", "Wind Direction", "Peri", "Pira_tracker", "GH", "Pressure", "baro_temp", "PPFD"]
 data[cols_numeric] = data[cols_numeric].apply(pd.to_numeric, errors="coerce")
 
-# Eliminar filas con valores nulos en las columnas clave
-data = data.dropna(subset=["timestamp", "record", "batt_v", "Temperature", "%RH", "Wind Speed", "Wind Direction", "Peri", "Pira_tracker", "GH", "Pressure", "baro_temp", "PPFD"])
+# Reemplazar valores nulos en las columnas clave por 0
+data[["timestamp", "record", "batt_v", "Temperature", "%RH", "Wind Speed", "Wind Direction", 
+      "Peri", "Pira_tracker", "GH", "Pressure", "baro_temp", "PPFD"]] = \
+    data[["timestamp", "record", "batt_v", "Temperature", "%RH", "Wind Speed", "Wind Direction", 
+          "Peri", "Pira_tracker", "GH", "Pressure", "baro_temp", "PPFD"]].fillna(0)
 
 # Establecer índice de tiempo
 data.set_index("timestamp", inplace=True)
