@@ -10,6 +10,8 @@ import io
 # Configuración FTP
 ftp_filepath = "meteos_data.dat"
 local_filepath = "/tmp/meteos_data.dat"
+spectra_filepath ="/tmp/Spectrum_D2.csv"
+spectra_ftp = "Spectrum_D2.csv"
 
 # Conectar al servidor FTP
 ftp = FTP(st.secrets["ftp_host"])
@@ -18,6 +20,8 @@ ftp.login(st.secrets["ftp_user"], st.secrets["ftp_pass"])
 # Descargar archivo DAT
 with open(local_filepath, "wb") as file:
     ftp.retrbinary(f"RETR {ftp_filepath}", file.write)
+with open(spectra_filepath, "wb") as file:
+    ftp.retrbinary(f"RETR {spectra_ftp}", file.write)
 ftp.quit()
 
 # Leer archivo sin asumir encabezado y omitir posibles metadatos
@@ -59,11 +63,11 @@ max_date = data.index.max().date()
 
 col1, col2 = st.columns(2)
 with col1:
-    start_date = st.date_input("Start Date", min_value=min_date, max_value=max_date, value=min_date)
-    start_time = st.time_input("Start Time", value=datetime.min.time())
+    start_date = st.date_input("Start Date", min_value=min_date, max_value=max_date, value=min_date, key="start_date")
+    start_time = st.time_input("Start Time", value=datetime.min.time(), key="start_time")
 with col2:
-    end_date = st.date_input("End Date", min_value=min_date, max_value=max_date, value=max_date)
-    end_time = st.time_input("End Time", value=datetime.max.time())
+    end_date = st.date_input("End Date", min_value=min_date, max_value=max_date, value=max_date, key="end_date")
+    end_time = st.time_input("End Time", value=datetime.max.time(), key="end_time")
 
 # Convertir a datetime
 selected_start_datetime = datetime.combine(start_date, start_time)
@@ -212,6 +216,120 @@ with sun2:
     else:
         st.warning("No data available for date & time selected.")
 
+#--------------------------------------------------------------------------------------------------------------
+# Leer archivo sin asumir encabezado y omitir posibles metadatos
+try:
+    spectra = pd.read_csv(spectra_filepath, header=4)
+except Exception as e:
+    st.error(f"Error reading file: {e}")
+
+# Asignar nombres de columnas
+spectra.columns = ["TIMESTAMP", "RECORD", "Timezone", "AmbientPressure", "AmbientTemperature", "InternalTemperature", "InternalHumidity", 
+                "ChannelVoltage1", "ChannelVoltage2", "ChannelVoltage3", "ChannelVoltage4", "ChannelVoltage5", "ChannelVoltage6"]  
+
+# Eliminar filas no numéricas en timestamp
+spectra = spectra[spectra["TIMESTAMP"].str.match(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}", na=False)]
+
+# Convertir timestamp a datetime
+spectra["TIMESTAMP"] = pd.to_datetime(spectra["TIMESTAMP"], errors='coerce')
+
+# Convertir columnas numéricas
+spectra_numeric = ["AmbientPressure", "AmbientTemperature", "InternalTemperature", "InternalHumidity", 
+                "ChannelVoltage1", "ChannelVoltage2", "ChannelVoltage3", "ChannelVoltage4", "ChannelVoltage5", "ChannelVoltage6"]
+spectra[spectra_numeric] = spectra[spectra_numeric].apply(pd.to_numeric, errors="coerce")
+
+# Reemplazar valores nulos en las columnas clave por 0
+spectra[["TIMESTAMP", "RECORD", "Timezone", "AmbientPressure", "AmbientTemperature", "InternalTemperature", "InternalHumidity", 
+      "ChannelVoltage1", "ChannelVoltage2", "ChannelVoltage3", "ChannelVoltage4", "ChannelVoltage5", "ChannelVoltage6"]] = \
+    spectra[["TIMESTAMP", "RECORD", "Timezone", "AmbientPressure", "AmbientTemperature", "InternalTemperature", "InternalHumidity", 
+          "ChannelVoltage1", "ChannelVoltage2", "ChannelVoltage3", "ChannelVoltage4", "ChannelVoltage5", "ChannelVoltage6"]].fillna(0)
+
+# Establecer índice de tiempo
+spectra.set_index("TIMESTAMP", inplace=True)
+
+st.subheader("Spectrometer Data")
+
+# Selección de fecha y hora de inicio y fin
+spec_min_date = spectra.index.min().date()
+spec_max_date = spectra.index.max().date()
+
+col1, col2 = st.columns(2)
+with col1:
+    spec_start_date = st.date_input("Start Date", min_value=spec_min_date, max_value=spec_max_date, value=spec_min_date, key="spec_start_date")
+    spec_start_time = st.time_input("Start Time", value=datetime.min.time(), key="spec_start_time")
+with col2:
+    spec_end_date = st.date_input("End Date", min_value=spec_min_date, max_value=spec_max_date, value=spec_max_date, key="spec_end_date")
+    spec_end_time = st.time_input("End Time", value=datetime.max.time(), key="spec_end_time")
+
+# Convertir a datetime
+spectra_selected_start_datetime = datetime.combine(spec_start_date, spec_start_time)
+spectra_selected_end_datetime = datetime.combine(spec_end_date, spec_end_time)
+
+# Filtrar datos en el rango seleccionado
+spectra_filtered = spectra[(spectra.index >= spectra_selected_start_datetime) & (spectra.index <= spectra_selected_end_datetime)]
+
+fig7 =  make_subplots()
+fig7.add_trace(
+    go.Scatter(x=spectra_filtered.index, y=spectra_filtered["AmbientPressure"], name="Amb. Press.", line=dict(color="#9467bd"))
+    )
+fig7.update_xaxes(title_text="Date & Time")
+fig7.update_yaxes(title_text="Pressure (kPa)", showgrid=False)
+
+fig8 = make_subplots(specs=[[{"secondary_y": True}]]) 
+fig8.add_trace(go.Scatter(x=spectra_filtered.index, y=spectra_filtered["AmbientTemperature"], name="Amb. Temp.", line=dict(color="#2ca02c")))
+fig8.add_trace(go.Scatter(x=spectra_filtered.index, y=spectra_filtered["InternalTemperature"], name="Int. Temp.", line=dict(color="#bcbd22")))
+fig8.update_xaxes(title_text="Date & Time")
+fig8.update_yaxes(title_text="Temperature (°C)", showgrid=False)
+
+fig9 =  make_subplots()
+fig9.add_trace(
+    go.Scatter(x=spectra_filtered.index, y=spectra_filtered["InternalHumidity"], name="Int. Hum.", line=dict(color="#ff7f0e"))
+    )
+fig9.update_xaxes(title_text="Date & Time")
+fig9.update_yaxes(title_text="IH (%)", showgrid=False)
+
+spec1, spec2, spec3 = st.columns(3, border=True)
+
+with spec1:
+    st.subheader("Ambient and Internal Temperature")
+    if not spectra_filtered.empty:
+        st.plotly_chart(fig8)
+    else:
+        st.warning("No data available for date & time selected.")
+with spec2:
+    st.subheader("Ambient Pressure")
+    if not spectra_filtered.empty:
+        st.plotly_chart(fig7)
+    else:
+        st.warning("No data available for date & time selected.")
+with spec3:
+    st.subheader("Internal Humidity")
+    if not spectra_filtered.empty:
+        st.plotly_chart(fig9)
+    else:
+        st.warning("No data available for date & time selected.")
+        
+fig10 = make_subplots(specs=[[{"secondary_y": True}]]) 
+fig10.add_trace(go.Scatter(x=spectra_filtered.index, y=spectra_filtered["ChannelVoltage1"], name="V1"))
+fig10.add_trace(go.Scatter(x=spectra_filtered.index, y=spectra_filtered["ChannelVoltage2"], name="V2"))
+fig10.add_trace(go.Scatter(x=spectra_filtered.index, y=spectra_filtered["ChannelVoltage3"], name="V3"))
+fig10.add_trace(go.Scatter(x=spectra_filtered.index, y=spectra_filtered["ChannelVoltage4"], name="V4"))
+fig10.add_trace(go.Scatter(x=spectra_filtered.index, y=spectra_filtered["ChannelVoltage5"], name="V5"))
+fig10.add_trace(go.Scatter(x=spectra_filtered.index, y=spectra_filtered["ChannelVoltage6"], name="V6"))
+fig10.update_xaxes(title_text="Date & Time")
+fig10.update_yaxes(title_text="Voltage (mV)", showgrid=False)
+
+spec4 = st.container(border=True)
+
+with spec4:
+    st.subheader("Channel Voltages")
+    if not spectra_filtered.empty:
+        st.plotly_chart(fig10)
+    else:
+        st.warning("No data available fr date & time selected.")
+
+#--------------------------------------------------------------------------------------------------------------
+
 # Definir la latitud y longitud del punto
 lat = [41.6062055056575]
 lon = [0.6245933114307467]
@@ -251,9 +369,9 @@ with download:
     st.subheader("Want to get the data?")
     st.text("Are you interested in downloading our meteo data?")
     st.text("Click the 'Download' button to get our data on a .csv file")
-    st.download_button(
-        label="Download",
-        data=csv_data,
-        file_name="SDAES_meteo_data.csv",
-        mime="text/csv"
-    )
+    #st.download_button(
+        #label="Download",
+        #data=csv_data,
+        #file_name="SDAES_meteo_data.csv",
+        #mime="text/csv"
+    #)
