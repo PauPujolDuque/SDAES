@@ -6,6 +6,7 @@ import plotly.graph_objects as go
 import plotly.express as px
 from plotly.subplots import make_subplots
 import io
+from io import StringIO
 
 # Configuración FTP
 ftp_filepath = "meteos_data.dat"
@@ -25,10 +26,12 @@ with open(spectra_filepath, "wb") as file:
 ftp.quit()
 
 # Leer archivo sin asumir encabezado y omitir posibles metadatos
-try:
-    data = pd.read_csv(local_filepath, header=4)
-except Exception as e:
-    st.error(f"Error reading file: {e}")
+with open(local_filepath, 'r', encoding='utf-8') as f:
+    all_lines = f.readlines()
+
+lineas_filtradas = [linea for linea in all_lines if len(linea.strip().split(',')) <= 13]
+
+data = pd.read_csv(StringIO(''.join(lineas_filtradas)), header=4)
 
 # Asignar nombres de columnas
 data.columns = ["timestamp", "record", "batt_v", "Temperature", "%RH", "Wind Speed", "Wind Direction", "Peri", "Pira_tracker", "GH", "Pressure", "baro_temp", "PPFD"]  
