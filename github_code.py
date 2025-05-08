@@ -282,14 +282,14 @@ fig8 = make_subplots(specs=[[{"secondary_y": True}]])
 fig8.add_trace(go.Scatter(x=spectra_filtered.index, y=spectra_filtered["AmbientTemperature"], name="Amb. Temp.", line=dict(color="#2ca02c")))
 fig8.add_trace(go.Scatter(x=spectra_filtered.index, y=spectra_filtered["InternalTemperature"], name="Int. Temp.", line=dict(color="#bcbd22")))
 fig8.update_xaxes(title_text="Date & Time")
-fig8.update_yaxes(title_text="Temperature (°C)", showgrid=False)
+fig8.update_yaxes(title_text="Temperature (°C)", range=[0,50], showgrid=False)
 
 fig9 =  make_subplots()
 fig9.add_trace(
     go.Scatter(x=spectra_filtered.index, y=spectra_filtered["InternalHumidity"], name="Int. Hum.", line=dict(color="#ff7f0e"))
     )
 fig9.update_xaxes(title_text="Date & Time")
-fig9.update_yaxes(title_text="IH (%)", showgrid=False)
+fig9.update_yaxes(title_text="IH (%)", range=[0,100], showgrid=False)
 
 spec1, spec2, spec3 = st.columns(3, border=True)
 
