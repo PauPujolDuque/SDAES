@@ -221,10 +221,12 @@ with sun2:
 
 #--------------------------------------------------------------------------------------------------------------
 # Leer archivo sin asumir encabezado y omitir posibles metadatos
-try:
-    spectra = pd.read_csv(spectra_filepath, header=4)
-except Exception as e:
-    st.error(f"Error reading file: {e}")
+with open(spectra_filepath, 'r', encoding='utf-8') as f:
+    apectra_lines = f.readlines()
+
+lineas_spectra = [linea for linea in spectra_lines if len(linea.strip().split(',')) <= 13]
+
+data = pd.read_csv(StringIO(''.join(lineas_spectra)), header=4)
 
 # Asignar nombres de columnas
 spectra.columns = ["TIMESTAMP", "RECORD", "Timezone", "AmbientPressure", "AmbientTemperature", "InternalTemperature", "InternalHumidity", 
