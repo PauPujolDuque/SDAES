@@ -222,7 +222,7 @@ with sun2:
 #--------------------------------------------------------------------------------------------------------------
 # Leer archivo sin asumir encabezado y omitir posibles metadatos
 with open(spectra_filepath, 'r', encoding='utf-8') as f:
-    apectra_lines = f.readlines()
+    spectra_lines = f.readlines()
 
 lineas_spectra = [linea for linea in spectra_lines if len(linea.strip().split(',')) <= 13]
 
