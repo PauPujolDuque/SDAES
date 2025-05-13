@@ -226,7 +226,7 @@ with open(spectra_filepath, 'r', encoding='utf-8') as f:
 
 lineas_spectra = [linea for linea in spectra_lines if len(linea.strip().split(',')) <= 13]
 
-data = pd.read_csv(StringIO(''.join(lineas_spectra)), header=4)
+spectra = pd.read_csv(StringIO(''.join(lineas_spectra)), header=4)
 
 # Asignar nombres de columnas
 spectra.columns = ["TIMESTAMP", "RECORD", "Timezone", "AmbientPressure", "AmbientTemperature", "InternalTemperature", "InternalHumidity", 
